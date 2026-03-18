@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cluster — Projeto · Catharina Mesa</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --cream: #F5F0E8;
+    --dark: #1A1714;
+    --terracotta: #C9623F;
+    --warm-mid: #8C7B6B;
+    --light-warm: #E8DFD0;
+    --cluster-dark: #0F1923;
+    --cluster-blue: #1E3A5F;
+    --cluster-accent: #C9623F;
+  }
+  html { scroll-behavior: smooth; }
+  body { background: var(--cream); color: var(--dark); font-family: 'DM Sans', sans-serif; font-weight: 300; overflow-x: hidden; cursor: none; }
+
+  .cursor { width: 10px; height: 10px; background: var(--terracotta); border-radius: 50%; position: fixed; pointer-events: none; z-index: 9999; transition: transform 0.15s ease; transform: translate(-50%, -50%); }
+  .cursor-ring { width: 36px; height: 36px; border: 1px solid var(--terracotta); border-radius: 50%; position: fixed; pointer-events: none; z-index: 9998; transition: width 0.3s, height 0.3s; transform: translate(-50%, -50%); opacity: 0.5; }
+
+  nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; justify-content: space-between; align-items: center; padding: 24px 60px; }
+  .nav-back { display: inline-flex; align-items: center; gap: 10px; font-size: 12px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--cream); text-decoration: none; opacity: 0.7; transition: opacity 0.2s; }
+  .nav-back:hover { opacity: 1; }
+  .nav-label { font-size: 12px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--cream); opacity: 0.4; }
+
+  /* HERO */
+  .hero {
+    min-height: 100vh;
+    background: var(--cluster-dark);
+    position: relative; overflow: hidden;
+    display: flex; align-items: center;
+  }
+  .hero-left {
+    display: flex; flex-direction: column; justify-content: center;
+    padding: 140px 60px 100px;
+    position: relative; z-index: 2;
+    max-width: 760px;
+  }
+  .hero-stats-inline { display: flex; align-items: center; gap: 32px; margin-top: 40px; opacity: 0; animation: fadeUp 0.7s 0.7s forwards; }
+  .hero-stat-inline { display: flex; flex-direction: column; gap: 4px; }
+  .hero-stat-divider { width: 1px; height: 40px; background: rgba(255,255,255,0.15); }
+  .hero-stat-num { font-family: 'Playfair Display', serif; font-size: 36px; font-weight: 900; color: #fff; line-height: 1; }
+  .hero-stat-label { font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: rgba(255,255,255,0.4); }
+  .hero-tag { font-size: 11px; letter-spacing: 0.25em; text-transform: uppercase; color: var(--terracotta); margin-bottom: 24px; opacity: 0; animation: fadeUp 0.7s 0.2s forwards; }
+  .hero-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(56px, 7vw, 96px);
+    font-weight: 900; line-height: 0.95;
+    color: #fff; margin-bottom: 32px;
+    opacity: 0; animation: fadeUp 0.7s 0.35s forwards;
+  }
+  .hero-title em { font-style: italic; color: var(--terracotta); }
+  .hero-desc { font-size: 16px; line-height: 1.8; color: rgba(255,255,255,0.5); max-width: 420px; opacity: 0; animation: fadeUp 0.7s 0.5s forwards; }
+  section { padding: 100px 60px; }
+  .section-header { display: flex; align-items: baseline; gap: 20px; margin-bottom: 72px; }
+  .section-num { font-family: 'Playfair Display', serif; font-size: 13px; color: var(--terracotta); letter-spacing: 0.1em; }
+  .section-title { font-family: 'Playfair Display', serif; font-size: clamp(32px, 4vw, 52px); font-weight: 700; line-height: 1.1; }
+  .section-line { flex: 1; height: 1px; background: var(--light-warm); margin-left: 20px; }
+
+  /* TRAJETÓRIA */
+  .trajetoria { background: var(--cream); }
+  .timeline { display: flex; flex-direction: column; gap: 0; }
+  .timeline-item {
+    display: grid; grid-template-columns: 200px 1fr;
+    gap: 48px; padding: 40px 0;
+    border-bottom: 1px solid var(--light-warm);
+    align-items: start;
+  }
+  .timeline-item:first-child { border-top: 1px solid var(--light-warm); }
+  .timeline-left { padding-top: 4px; }
+  .timeline-period { font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--terracotta); margin-bottom: 6px; }
+  .timeline-role { font-family: 'Playfair Display', serif; font-size: 16px; font-weight: 700; color: var(--dark); }
+  .timeline-content-title { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 700; margin-bottom: 12px; }
+  .timeline-content-text { font-size: 15px; line-height: 1.8; color: var(--warm-mid); }
+  .timeline-highlight {
+    display: inline-flex; align-items: center; gap: 8px;
+    margin-top: 16px; padding: 10px 18px;
+    background: var(--light-warm);
+    font-size: 13px; color: var(--dark);
+    font-weight: 500;
+  }
+  .timeline-highlight::before { content: '→'; color: var(--terracotta); }
+
+  /* AEO/GEO */
+  .aeo { background: var(--cluster-dark); color: #fff; }
+  .aeo .section-title { color: #fff; }
+  .aeo .section-line { background: rgba(255,255,255,0.1); }
+  .aeo-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; }
+  .aeo-intro {
+    grid-column: span 2; padding: 48px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
+    margin-bottom: 2px;
+  }
+  .aeo-intro-text { font-size: 18px; line-height: 1.8; color: rgba(255,255,255,0.6); max-width: 760px; }
+  .aeo-intro-text strong { color: #fff; font-weight: 500; }
+  .aeo-card {
+    padding: 44px 40px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
+    transition: background 0.3s, transform 0.3s;
+    position: relative; overflow: hidden;
+  }
+  .aeo-card::after {
+    content: ''; position: absolute; bottom: 0; left: 0;
+    width: 100%; height: 2px; background: var(--terracotta);
+    transform: scaleX(0); transform-origin: left;
+    transition: transform 0.4s;
+  }
+  .aeo-card:hover::after { transform: scaleX(1); }
+  .aeo-card:hover { background: rgba(255,255,255,0.06); transform: translateY(-3px); }
+  .aeo-card-label { font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--terracotta); margin-bottom: 16px; }
+  .aeo-card-title { font-family: 'Playfair Display', serif; font-size: 24px; font-weight: 700; color: #fff; margin-bottom: 14px; }
+  .aeo-card-text { font-size: 14px; line-height: 1.8; color: rgba(255,255,255,0.45); }
+
+  /* BLOGS */
+  .blogs { background: var(--light-warm); }
+  .blogs-intro { font-size: 17px; line-height: 1.9; color: var(--warm-mid); max-width: 620px; margin-bottom: 56px; }
+  .blogs-intro strong { color: var(--dark); font-weight: 500; }
+  .blogs-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; }
+  .blog-card {
+    background: var(--cream); padding: 36px 32px;
+    transition: transform 0.3s, background 0.3s;
+    position: relative;
+  }
+  .blog-card:hover { transform: translateY(-4px); background: #fff; }
+  .blog-card-icon { font-size: 28px; margin-bottom: 16px; }
+  .blog-card-seg { font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--terracotta); margin-bottom: 8px; }
+  .blog-card-name { font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 700; margin-bottom: 10px; }
+  .blog-card-desc { font-size: 13px; line-height: 1.7; color: var(--warm-mid); }
+
+  /* FERRAMENTAS */
+  .ferramentas { background: var(--cream); }
+  .ferramentas-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2px; }
+  .ferramenta-card {
+    padding: 36px 28px;
+    background: var(--light-warm);
+    transition: background 0.2s, transform 0.2s;
+  }
+  .ferramenta-card:hover { background: var(--dark); transform: translateY(-2px); }
+  .ferramenta-card:hover .ferramenta-name { color: #fff; }
+  .ferramenta-card:hover .ferramenta-desc { color: rgba(255,255,255,0.4); }
+  .ferramenta-icon { font-size: 24px; margin-bottom: 14px; }
+  .ferramenta-name { font-family: 'Playfair Display', serif; font-size: 16px; font-weight: 700; margin-bottom: 6px; transition: color 0.2s; }
+  .ferramenta-desc { font-size: 12px; color: var(--warm-mid); line-height: 1.5; transition: color 0.2s; }
+
+  /* CTA */
+  .cta-section { background: var(--cluster-blue); text-align: center; padding: 100px 60px; }
+  .cta-pre { font-size: 11px; letter-spacing: 0.25em; text-transform: uppercase; color: var(--terracotta); margin-bottom: 24px; }
+  .cta-title { font-family: 'Playfair Display', serif; font-size: clamp(40px, 6vw, 72px); font-weight: 900; color: #fff; line-height: 1; margin-bottom: 24px; }
+  .cta-title em { font-style: italic; color: var(--terracotta); }
+  .cta-sub { font-size: 16px; color: rgba(255,255,255,0.4); max-width: 440px; margin: 0 auto 48px; line-height: 1.7; }
+  .cta-btn { display: inline-flex; align-items: center; gap: 12px; background: var(--terracotta); color: #fff; text-decoration: none; font-size: 13px; letter-spacing: 0.12em; text-transform: uppercase; padding: 20px 44px; transition: background 0.3s, transform 0.2s; }
+  .cta-btn:hover { background: #B8522F; transform: translateY(-2px); }
+
+  .back-bar { background: var(--cream); padding: 24px 60px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--light-warm); }
+  .back-link { display: inline-flex; align-items: center; gap: 10px; font-size: 12px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--dark); text-decoration: none; opacity: 0.5; transition: opacity 0.2s; }
+  .back-link:hover { opacity: 1; }
+  .back-project { font-family: 'Playfair Display', serif; font-size: 14px; color: var(--warm-mid); }
+
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+  .reveal { opacity: 0; transform: translateY(28px); transition: opacity 0.8s ease, transform 0.8s ease; }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+
+  @media (max-width: 900px) {
+    nav { padding: 20px 24px; }
+    .hero { grid-template-columns: 1fr; }
+    .hero-left { padding: 100px 24px 48px; }
+    .hero-right { padding: 48px 24px; }
+    .hero-stats { flex-direction: row; flex-wrap: wrap; gap: 24px; }
+    section { padding: 72px 24px; }
+    .timeline-item { grid-template-columns: 1fr; gap: 12px; }
+    .aeo-grid { grid-template-columns: 1fr; }
+    .aeo-intro { grid-column: span 1; }
+    .blogs-grid { grid-template-columns: 1fr 1fr; }
+    .ferramentas-grid { grid-template-columns: 1fr 1fr; }
+    .cta-section { padding: 80px 24px; }
+    .back-bar { padding: 20px 24px; flex-direction: column; gap: 8px; }
+    body { cursor: auto; }
+    .cursor, .cursor-ring { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursor-ring"></div>
+
+<nav>
+  <a href="portfolio.html" class="nav-back">← Voltar ao portfólio</a>
+  <span class="nav-label">Experiência Profissional</span>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-left">
+    <p class="hero-tag">Inbound Marketing · 2 anos e 5 meses</p>
+    <h1 class="hero-title">De estagiária<br>a <em>líder</em> do<br>setor.</h1>
+    <p class="hero-desc">Uma trajetória construída dentro da Cluster — da redação à liderança da equipe de inbound marketing, passando pelas maiores transformações do SEO dos últimos anos.</p>
+    <div class="hero-stats-inline">
+      <div class="hero-stat-inline">
+        <div class="hero-stat-num">11</div>
+        <div class="hero-stat-label">Blogs gerenciados</div>
+      </div>
+      <div class="hero-stat-divider"></div>
+      <div class="hero-stat-inline">
+        <div class="hero-stat-num">2+</div>
+        <div class="hero-stat-label">Anos na empresa</div>
+      </div>
+      <div class="hero-stat-divider"></div>
+      <div class="hero-stat-inline">
+        <div class="hero-stat-num">3</div>
+        <div class="hero-stat-label">Cargos ocupados</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TRAJETÓRIA -->
+<section class="trajetoria">
+  <div class="section-header reveal">
+    <span class="section-num">01</span>
+    <h2 class="section-title">A trajetória</h2>
+    <div class="section-line"></div>
+  </div>
+  <div class="timeline">
+    <div class="timeline-item reveal">
+      <div class="timeline-left">
+        <div class="timeline-period">Nov 2023 – Abr 2024</div>
+        <div class="timeline-role">Redatora</div>
+      </div>
+      <div class="timeline-content">
+        <h3 class="timeline-content-title">O começo — aprendendo com a prática</h3>
+        <p class="timeline-content-text">Entrei como redatora publicitária e mergulhei de cabeça na produção de conteúdo para blogs de diferentes segmentos. Foi aqui que desenvolvi o olhar para SEO, aprendi a adaptar o tom de voz para cada nicho e entendi como conteúdo bem escrito move resultados reais.</p>
+        <span class="timeline-highlight">Redação · SEO on-page · Adaptação de tom de voz</span>
+      </div>
+    </div>
+    <div class="timeline-item reveal">
+      <div class="timeline-left">
+        <div class="timeline-period">Mar 2024 – Mar 2025</div>
+        <div class="timeline-role">Gerente de Mídias Sociais</div>
+      </div>
+      <div class="timeline-content">
+        <h3 class="timeline-content-title">Expandindo o olhar para as redes</h3>
+        <p class="timeline-content-text">Assumi a gestão de redes sociais, desenvolvendo estratégias de conteúdo, análise de desempenho e alinhamento com clientes. Essa fase ampliou minha visão sobre comunicação de marca e a relação entre canais digitais.</p>
+        <span class="timeline-highlight">Estratégia de mídias sociais · Análise · Relacionamento com clientes</span>
+      </div>
+    </div>
+    <div class="timeline-item reveal">
+      <div class="timeline-left">
+        <div class="timeline-period">Nov 2024 – Presente</div>
+        <div class="timeline-role">Líder de Inbound Marketing</div>
+      </div>
+      <div class="timeline-content">
+        <h3 class="timeline-content-title">Liderando o setor que ajudou a construir</h3>
+        <p class="timeline-content-text">Hoje comando a equipe de inbound marketing — gerencio 11 blogs de segmentos distintos, oriento a equipe de redação, faço contato direto com clientes e monitoro performance via Google Analytics e Search Console. Mais do que isso: ajudei a reestruturar o setor e a conduzir a transição para o AEO e GEO, as novas fronteiras do SEO orientado à IA.</p>
+        <span class="timeline-highlight">Gestão de equipe · 11 blogs · AEO/GEO · Liderança estratégica</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- AEO / GEO -->
+<section class="aeo">
+  <div class="section-header reveal">
+    <span class="section-num">02</span>
+    <h2 class="section-title">AEO &amp; GEO — o futuro do SEO</h2>
+    <div class="section-line"></div>
+  </div>
+  <div class="aeo-grid">
+    <div class="aeo-intro reveal">
+      <p class="aeo-intro-text">Uma das principais responsabilidades na liderança foi conduzir a equipe pela maior virada do marketing de conteúdo dos últimos tempos: a transição do <strong>SEO tradicional</strong> para estratégias orientadas à IA — o <strong>AEO (Answer Engine Optimization)</strong> e o <strong>GEO (Generative Engine Optimization)</strong>. Com motores de busca cada vez mais baseados em geração de respostas, a forma de criar e estruturar conteúdo precisou ser completamente repensada.</p>
+    </div>
+    <div class="aeo-card reveal">
+      <div class="aeo-card-label">AEO</div>
+      <h3 class="aeo-card-title">Answer Engine Optimization</h3>
+      <p class="aeo-card-text">Otimização voltada para que o conteúdo seja escolhido como resposta direta por assistentes e buscadores com IA — como Google SGE e Bing Copilot. Exige clareza estrutural, autoridade temática e formatação estratégica.</p>
+    </div>
+    <div class="aeo-card reveal" style="transition-delay:0.1s">
+      <div class="aeo-card-label">GEO</div>
+      <h3 class="aeo-card-title">Generative Engine Optimization</h3>
+      <p class="aeo-card-text">Estratégia para que conteúdos sejam citados e utilizados por modelos de linguagem generativa. Vai além do ranqueamento — é sobre ser uma fonte confiável para a IA sintetizar respostas.</p>
+    </div>
+  </div>
+</section>
+
+<!-- BLOGS -->
+<section class="blogs">
+  <div class="section-header reveal">
+    <span class="section-num">03</span>
+    <h2 class="section-title">Os segmentos</h2>
+    <div class="section-line"></div>
+  </div>
+  <p class="blogs-intro reveal">Gerencio <strong>11 blogs ativos</strong> em segmentos completamente distintos — o que exige constante adaptação de linguagem, profundidade técnica e estratégia de palavras-chave específica para cada nicho.</p>
+  <div class="blogs-grid">
+    <div class="blog-card reveal">
+      <div class="blog-card-icon">🏢</div>
+      <div class="blog-card-seg">Marketing Digital</div>
+      <div class="blog-card-name">Blog da Cluster</div>
+      <p class="blog-card-desc">Conteúdo sobre inbound marketing, SEO e estratégia digital — a própria voz da agência no mercado.</p>
+    </div>
+    <div class="blog-card reveal" style="transition-delay:0.05s">
+      <div class="blog-card-icon">🏠</div>
+      <div class="blog-card-seg">Mercado Imobiliário</div>
+      <div class="blog-card-name">Imobiliárias</div>
+      <p class="blog-card-desc">Conteúdo técnico e de atração para o setor imobiliário, com foco em intenção de compra e busca local.</p>
+    </div>
+    <div class="blog-card reveal" style="transition-delay:0.1s">
+      <div class="blog-card-icon">💻</div>
+      <div class="blog-card-seg">Tecnologia</div>
+      <div class="blog-card-name">Tech</div>
+      <p class="blog-card-desc">Artigos técnicos acessíveis que traduzem tendências e soluções tecnológicas para diferentes públicos.</p>
+    </div>
+    <div class="blog-card reveal" style="transition-delay:0.15s">
+      <div class="blog-card-icon">🌱</div>
+      <div class="blog-card-seg">Agronegócio</div>
+      <div class="blog-card-name">Agro</div>
+      <p class="blog-card-desc">Conteúdo especializado para um dos setores mais exigentes em precisão técnica e terminologia específica.</p>
+    </div>
+    <div class="blog-card reveal" style="transition-delay:0.2s">
+      <div class="blog-card-icon">🪑</div>
+      <div class="blog-card-seg">Interiores</div>
+      <div class="blog-card-name">Móveis Planejados</div>
+      <p class="blog-card-desc">Conteúdo inspiracional e informativo para o segmento de decoração e ambientes planejados.</p>
+    </div>
+    <div class="blog-card reveal" style="transition-delay:0.25s">
+      <div class="blog-card-icon">🎓</div>
+      <div class="blog-card-seg">Educação</div>
+      <div class="blog-card-name">Cursinho</div>
+      <p class="blog-card-desc">Estratégia de conteúdo para captação de alunos, com foco em intenção de busca e jornada do estudante.</p>
+    </div>
+  </div>
+</section>
+
+<!-- FERRAMENTAS -->
+<section class="ferramentas">
+  <div class="section-header reveal">
+    <span class="section-num">04</span>
+    <h2 class="section-title">Ferramentas</h2>
+    <div class="section-line"></div>
+  </div>
+  <div class="ferramentas-grid">
+    <div class="ferramenta-card reveal">
+      <div class="ferramenta-icon">📊</div>
+      <div class="ferramenta-name">Google Analytics</div>
+      <p class="ferramenta-desc">Monitoramento de tráfego, comportamento e performance de conteúdo</p>
+    </div>
+    <div class="ferramenta-card reveal" style="transition-delay:0.05s">
+      <div class="ferramenta-icon">🔍</div>
+      <div class="ferramenta-name">Search Console</div>
+      <p class="ferramenta-desc">Análise de indexação, cliques e posicionamento orgânico</p>
+    </div>
+    <div class="ferramenta-card reveal" style="transition-delay:0.1s">
+      <div class="ferramenta-icon">📈</div>
+      <div class="ferramenta-name">SEMrush</div>
+      <p class="ferramenta-desc">Pesquisa de palavras-chave, análise de concorrência e auditoria de SEO</p>
+    </div>
+    <div class="ferramenta-card reveal" style="transition-delay:0.15s">
+      <div class="ferramenta-icon">🔎</div>
+      <div class="ferramenta-name">Ubersuggest</div>
+      <p class="ferramenta-desc">Descoberta de oportunidades de palavras-chave e análise de domínio</p>
+    </div>
+    <div class="ferramenta-card reveal" style="transition-delay:0.2s">
+      <div class="ferramenta-icon">📝</div>
+      <div class="ferramenta-name">WordPress</div>
+      <p class="ferramenta-desc">Publicação, gestão e otimização dos blogs dos clientes</p>
+    </div>
+    <div class="ferramenta-card reveal" style="transition-delay:0.25s">
+      <div class="ferramenta-icon">✅</div>
+      <div class="ferramenta-name">ClickUp</div>
+      <p class="ferramenta-desc">Gestão de projetos, fluxos de trabalho e organização da equipe</p>
+    </div>
+    <div class="ferramenta-card reveal" style="transition-delay:0.3s">
+      <div class="ferramenta-icon">🤖</div>
+      <div class="ferramenta-name">IA Generativa</div>
+      <p class="ferramenta-desc">Uso estratégico de IA como apoio na produção e otimização de conteúdo</p>
+    </div>
+    <div class="ferramenta-card reveal" style="transition-delay:0.35s">
+      <div class="ferramenta-icon">🌐</div>
+      <div class="ferramenta-name">AEO / GEO</div>
+      <p class="ferramenta-desc">Estratégias de otimização para motores de busca generativos e assistentes de IA</p>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+  <p class="cta-pre">Vamos conversar</p>
+  <h2 class="cta-title">Conteúdo que<br>gera <em>resultado.</em></h2>
+  <p class="cta-sub">Quer saber mais sobre meu trabalho ou tem um projeto de inbound e conteúdo para discutir?</p>
+  <a href="/cdn-cgi/l/email-protection#e68587928e87948f8887818bc8dfdea6818b878f8ac885898b" class="cta-btn">✉ Entrar em contato</a>
+</section>
+
+<div class="back-bar">
+  <a href="portfolio.html" class="back-link">← Voltar ao portfólio</a>
+  <span class="back-project">Catharina Mesa · Portfólio</span>
+</div>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+  var cursor = document.getElementById('cursor');
+  var ring = document.getElementById('cursor-ring');
+  var mx = 0, my = 0, rx = 0, ry = 0;
+
+  document.addEventListener('mousemove', function(e) {
+    mx = e.clientX; my = e.clientY;
+    cursor.style.left = mx + 'px';
+    cursor.style.top = my + 'px';
+  });
+
+  function animRing() {
+    rx += (mx - rx) * 0.1;
+    ry += (my - ry) * 0.1;
+    ring.style.left = rx + 'px';
+    ring.style.top = ry + 'px';
+    requestAnimationFrame(animRing);
+  }
+  animRing();
+
+  document.querySelectorAll('a, button').forEach(function(el) {
+    el.addEventListener('mouseenter', function() {
+      cursor.style.transform = 'translate(-50%,-50%) scale(2)';
+      ring.style.width = '56px'; ring.style.height = '56px';
+    });
+    el.addEventListener('mouseleave', function() {
+      cursor.style.transform = 'translate(-50%,-50%) scale(1)';
+      ring.style.width = '36px'; ring.style.height = '36px';
+    });
+  });
+
+  var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(e) {
+      if (e.isIntersecting) e.target.classList.add('visible');
+     });
+  }, { threshold: 0.12 });
+
+  document.querySelectorAll('.reveal').forEach(function(el) {
+    observer.observe(el);
+  });
+</script>
+</body>
+</html>
